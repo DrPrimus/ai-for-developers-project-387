@@ -1,0 +1,75 @@
+[tools]
+gh = "2.103.3"
+hk = { version = "2.11.1", workflow = "release.yml" }
+java = "25"
+maven = "latest"
+node = "24"
+
+[tasks.check]
+description = "Полная проверка проекта: контракт API, бэкенд, фронтенд и E2E"
+depends = ["api-install", "fe-install"]
+run = "node scripts/check.mjs all"
+
+[tasks.api-install]
+description = "Установить зависимости контракта API (TypeSpec)"
+run = "npm --prefix api install"
+
+[tasks.api-generate]
+description = "Сгенерировать OpenAPI и типы фронтенда из TypeSpec"
+depends = ["api-install"]
+run = "npm --prefix api run generate"
+
+[tasks.api-check]
+description = "Проверить TypeSpec и актуальность OpenAPI и типов фронтенда"
+depends = ["api-install"]
+run = "npm --prefix api run check"
+
+[tasks.be-build]
+description = "Скомпилировать бэкенд (spotless check + compile)"
+run = "BE/mvnw -f BE/pom.xml clean compile"
+
+[tasks.be-check]
+description = "Полная проверка бэкенда (spotless check + тесты)"
+run = "BE/mvnw -f BE/pom.xml clean test"
+
+[tasks.be-run]
+description = "Запустить бэкенд (Spring Boot)"
+run = "BE/mvnw -f BE/pom.xml spring-boot:run"
+
+[tasks.fe-install]
+description = "Установить зависимости фронтенда"
+run = "npm --prefix FE install"
+
+[tasks.fe-run]
+description = "Запустить фронтенд (Vite) на http://localhost:80"
+depends = ["fe-install"]
+run = "npm --prefix FE run dev"
+
+[tasks.fe-build]
+description = "Собрать production-бандл фронтенда"
+depends = ["fe-install"]
+run = "npm --prefix FE run build"
+
+[tasks.fe-check]
+description = "Проверить фронтенд: линтер, тесты, сборка и HTTP-смоук"
+depends = ["fe-install"]
+run = "node scripts/check.mjs fe"
+
+[tasks.e2e-install]
+description = "Установить Chromium для Playwright (локально)"
+depends = ["fe-install"]
+run = "cd FE && npx playwright install chromium"
+
+[tasks.e2e]
+description = "Сквозной браузерный тест на настоящих серверах (Spring Boot + собранный фронтенд)"
+depends = ["fe-build"]
+run = "cd FE && npx playwright test"
+
+[tasks.verify-public]
+description = "Проверить развёрнутый сервис по PUBLIC_URL: бронь через UI и повтор через API (409)"
+depends = ["fe-install", "e2e-install"]
+run = "node FE/scripts/verify-public.mjs"
+
+[tasks.docker-check]
+description = "Собрать Docker-образ и проверить запуск на PORT=18080 и PORT=8080"
+run = "node scripts/docker-check.mjs"

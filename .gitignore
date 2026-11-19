@@ -1,0 +1,81 @@
+# Local environment files (never commit secrets)
+.env
+.env.*
+
+# IDE
+.idea/
+
+# macOS
+.DS_Store
+
+# Inside BE project - files to ignore
+BE/HELP.md
+BE/target/
+BE/.mvn/wrapper/maven-wrapper.jar
+
+# Inside BE project - exclude target inside src (never ignore)
+!BE/**/src/main/**/target/
+!BE/**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Visual Studio ###
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+### VS Code ###
+.vscode/*
+!.vscode/extensions.json
+
+# Inside FE project (Vite + npm) - dependencies
+FE/node_modules/
+
+# Inside API contract project (TypeSpec + npm)
+api/node_modules/
+
+# Inside FE project - build output
+FE/dist/
+FE/dist-ssr/
+
+# Inside FE project - Playwright artifacts
+FE/test-results/
+FE/playwright-report/
+FE/blob-report/
+
+# Inside FE project - local env overrides
+FE/*.local
+
+# Inside FE project - logs
+FE/logs/
+FE/*.log
+FE/npm-debug.log*
+FE/yarn-debug.log*
+FE/yarn-error.log*
+FE/pnpm-debug.log*
+FE/lerna-debug.log*
