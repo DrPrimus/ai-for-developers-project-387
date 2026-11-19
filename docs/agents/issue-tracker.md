@@ -2,6 +2,9 @@
 
 Issues и спеки этого репозитория живут в GitHub Issues. Все операции — через `gh` CLI.
 
+- **Трекер этого репозитория**: [DrPrimus/ai-for-developers-project-387](https://github.com/DrPrimus/ai-for-developers-project-387/issues).
+- **Первый проект**: спецификация, карта решений и research остались в [DrPrimus/ai-for-developers-project-386](https://github.com/DrPrimus/ai-for-developers-project-386/issues); ссылки на них — ссылки на источник, а не на текущий трекер. Новые issue создавайте только в 387.
+
 ## Conventions
 
 - **Создать issue**: `gh issue create --title "..." --body "..."`. Многострочное тело — через heredoc.

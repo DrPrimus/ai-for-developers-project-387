@@ -12,7 +12,7 @@
 - `FE/e2e/` — сквозной браузерный сценарий на Playwright (`FE/playwright.config.ts` поднимает настоящий Spring Boot и собранный фронтенд).
 - `api/` — контракт HTTP API на TypeSpec (Design First). Источник истины — `api/main.tsp`. Из него генерируются `api/openapi/openapi.yaml` и типы фронтенда `FE/src/api/schema.d.ts`; оба артефакта коммитятся и не редактируются руками. Бэкенд и фронтенд пишутся под этот контракт.
 - `Dockerfile`, `docker/` — один production-образ: multi-stage сборка фронтенда и Spring Boot jar, в runtime nginx отдаёт SPA и проксирует `/api/` и `/actuator/` в JVM на loopback-порту `BACKEND_PORT` (по умолчанию `8081`). `docker/entrypoint.sh` запускает оба процесса и координирует завершение по SIGTERM, шаблон nginx лежит в `docker/nginx/default.conf.template`.
-- Railway — публичный деплой: проект `ai-for-developers-project-386`, сервис `web`, сборка из `main` по корневому `Dockerfile`, health check `/actuator/health`, домен `https://web-production-347f5551.up.railway.app`. Это Free Trial на 30 дней / $5 кредита, поэтому ссылка не вечная.
+- Railway — публичный деплой первого проекта: проект `ai-for-developers-project-386`, сервис `web`, сборка из `main` по корневому `Dockerfile`, health check `/actuator/health`, домен `https://web-production-347f5551.up.railway.app`. Деплой этого репозитория пока не создан. Это Free Trial на 30 дней / $5 кредита, поэтому ссылка не вечная.
 - `scripts/docker-check.mjs` — сборка образа и два запуска контейнера (нестандартный порт и `PORT=8080`): health через nginx, SPA, deep link, API и graceful shutdown.
 - `opencode.json` — local MCP-сервер Railway для OpenCode (`railway mcp local`); токенов и ключей в файле нет, используется CLI-сессия `railway login`.
 - `.github/workflows/quality-gates.yml` — CI-гейт: job `check` устанавливает Chromium и запускает `mise run check` (контракт, бэкенд, фронтенд и E2E), а отдельный job `docker` запускает `mise run docker-check`.
@@ -137,7 +137,7 @@ Refs: #13
 
 ### Issue tracker
 
-Issues и спеки живут в GitHub Issues этого репозитория, работа через `gh` CLI. См. `docs/agents/issue-tracker.md`.
+Issues и спеки живут в GitHub Issues этого репозитория ([DrPrimus/ai-for-developers-project-387](https://github.com/DrPrimus/ai-for-developers-project-387/issues)), работа через `gh` CLI. Спецификация и решения первого проекта остаются в [DrPrimus/ai-for-developers-project-386](https://github.com/DrPrimus/ai-for-developers-project-386/issues) — ссылки на них указывают на источник. См. `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
