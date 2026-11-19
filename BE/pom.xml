@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ru.hexlet</groupId>
-	<artifactId>386</artifactId>
+	<artifactId>387</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>

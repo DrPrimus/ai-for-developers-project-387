@@ -10,10 +10,10 @@
 import { spawnSync } from 'node:child_process'
 import process from 'node:process'
 
-const IMAGE = 'ai-for-developers-project-386:local'
-const CONTAINER_BASE = 'ai-for-developers-project-386-check'
+const IMAGE = 'ai-for-developers-project-387:local'
+const CONTAINER_BASE = 'ai-for-developers-project-387-check'
 // Every check container carries this label, so cleanup never depends on names.
-const LABEL = 'ai-for-developers-project-386.check=1'
+const LABEL = 'ai-for-developers-project-387.check=1'
 const BUILD_TIMEOUT_MS = 20 * 60 * 1000
 const HEALTH_TIMEOUT_MS = 5 * 60 * 1000
 const STOP_TIMEOUT_SECONDS = 30
