@@ -3,19 +3,28 @@ name: Quality Gates
 on:
   push:
     branches:
-      - '**'
-    tags:
-      - '**'
+      - main
   pull_request:
     branches:
       - '**'
 
+permissions: {}
+
+concurrency:
+  group: quality-gates-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Git credentials (for git operations in CI)
         run: |
@@ -23,10 +32,10 @@ jobs:
           git config --global user.name "GitHub Action"
 
       - name: Install mise
-        uses: jdx/mise-action@v5
+        uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
 
       - name: Cache npm downloads
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('FE/package-lock.json', 'mise.toml') }}
@@ -34,7 +43,7 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Cache frontend dependencies
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: FE/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('FE/package-lock.json', 'mise.toml') }}
@@ -46,7 +55,7 @@ jobs:
           mise run fe-install
           cd FE && npx playwright install --with-deps chromium
 
-      - name: Run quality gates check (contract + backend + frontend + E2E)
+      - name: Run quality gates check (workflow lint + contract + backend + frontend + E2E)
         run: |
           mise run check
 
@@ -55,18 +64,23 @@ jobs:
     # Cold image build (~2 min locally) plus two container runs; CI runners are
     # slower and pull the base images, so leave a generous margin.
     timeout-minutes: 40
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install mise
-        uses: jdx/mise-action@v5
+        uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
 
       - name: Build image and probe the container (PORT=18080 and PORT=8080)
         run: mise run docker-check
 
       - name: Remove leftover containers
         if: always()
+        shell: bash
         run: |
           docker ps -aq --filter label=ai-for-developers-project-387.check=1 \
             | xargs -r docker rm -f

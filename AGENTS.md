@@ -15,7 +15,9 @@
 - Railway — публичный деплой первого проекта: проект `ai-for-developers-project-386`, сервис `web`, сборка из `main` по корневому `Dockerfile`, health check `/actuator/health`, домен `https://web-production-347f5551.up.railway.app`. Деплой этого репозитория пока не создан. Это Free Trial на 30 дней / $5 кредита, поэтому ссылка не вечная.
 - `scripts/docker-check.mjs` — сборка образа и два запуска контейнера (нестандартный порт и `PORT=8080`): health через nginx, SPA, deep link, API и graceful shutdown.
 - `opencode.json` — local MCP-сервер Railway для OpenCode (`railway mcp local`); токенов и ключей в файле нет, используется CLI-сессия `railway login`.
-- `.github/workflows/quality-gates.yml` — CI-гейт: job `check` устанавливает Chromium и запускает `mise run check` (контракт, бэкенд, фронтенд и E2E), а отдельный job `docker` запускает `mise run docker-check`.
+- `.github/workflows/quality-gates.yml` — CI-гейт: job `check` устанавливает Chromium и запускает `mise run check` (workflow, контракт, бэкенд, фронтенд и E2E), а отдельный job `docker` запускает `mise run docker-check`.
+- `.github/workflows/opencode.yml` — OpenCode по команде `/oc` или `/opencode` в issue и в review-комментариях PR. Запускается только для `OWNER`, `MEMBER`, `COLLABORATOR`, работает read-only и публикует ответ через `gh`. Секрет — `OPENCODE_API_KEY`.
+- `.github/jactionlint.yaml` — конфигурация jactionlint: известные секреты и точечное исключение `dangerous-triggers` для обязательного триггера `issue_comment`/`pull_request_review_comment`.
 - `.github/workflows/hexlet-check.yml` — автогенерируемая проверка Хекслета. Не редактируйте, не удаляйте и не переименовывайте её; не переименовывайте репозиторий.
 
 ## Команды
@@ -47,8 +49,9 @@ E2E:
 
 - `mise run api-generate` — пересобрать `api/openapi/openapi.yaml` и `FE/src/api/schema.d.ts` из TypeSpec
 - `mise run api-check` — проверить компиляцию TypeSpec и актуальность сгенерированных артефактов
-- `mise run check` — полная проверка проекта через `scripts/check.mjs`: контракт API, бэкенд, фронтенд и E2E запускаются последовательно, каждый в своём блоке; после каждой части печатается сводка, в конце — общая таблица по тестам. Цифры читаются из консольного вывода Maven, Vitest и Playwright, файлы отчётов не создаются. Docker в этот шаг не входит — он запускается отдельным CI-job
-- `hk install --mise` — один раз после клона: включает git-хук `pre-commit` из `hk.pkl`, который запускает `mise run check` (контракт API, бэкенд, фронтенд и E2E) на изменённые `api/**`, `BE/**`, `FE/**`, `docker/**`, `scripts/**`, `Dockerfile`, `opencode.json`, `.dockerignore`, `mise.toml`, `hk.pkl`. Сами хуки живут в `.git/` и в репозиторий не попадают, поэтому на каждой новой машине команду нужно повторить.
+- `mise run workflows-check` — проверить `.github/workflows` линтером `jactionlint` (версия закреплена в `mise.toml`)
+- `mise run check` — полная проверка проекта: сначала `jactionlint`, затем `scripts/check.mjs` последовательно прогоняет контракт API, бэкенд, фронтенд и E2E, каждый в своём блоке; после каждой части печатается сводка, в конце — общая таблица по тестам. Цифры читаются из консольного вывода Maven, Vitest и Playwright, файлы отчётов не создаются. Docker в этот шаг не входит — он запускается отдельным CI-job
+- `hk install --mise` — один раз после клона: включает git-хук `pre-commit` из `hk.pkl`, который запускает `mise run check` (workflow, контракт API, бэкенд, фронтенд и E2E) на изменённые `.github/**`, `api/**`, `BE/**`, `FE/**`, `docker/**`, `scripts/**`, `Dockerfile`, `opencode.json`, `.dockerignore`, `mise.toml`, `hk.pkl`. Сами хуки живут в `.git/` и в репозиторий не попадают, поэтому на каждой новой машине команду нужно повторить.
 
 Деплой и контейнер:
 
@@ -130,7 +133,7 @@ Refs: #13
 - `/actuator/health` должен оставаться в состоянии `UP`; `ActuatorHealthTest` — smoke-тест для этого.
 - Фронтенд: компонентные тесты — Vitest + Testing Library в `jsdom` (`FE/src/**/*.test.tsx`, конфиг в `FE/vite.config.ts`, setup — `FE/src/test/setup.ts`). Они входят в `npm run test` вместе со сборкой и HTTP-смоуком `FE/scripts/smoke.mjs`, который поднимает `vite preview` на свободном порту и требует 200 для `/` и бандлов.
 - E2E: Playwright в Chromium (`FE/e2e/*.spec.ts`) на настоящих серверах — Spring Boot с хранилищем в памяти и собранный фронтенд. Один счастливый путь: владелец создаёт тип встречи, гость бронирует первый доступный слот из интерфейса, владелец видит встречу в предстоящих. Часы настоящие, дата не фиксируется; ошибки, конфликт и границы времени остаются на швах HTTP и компонентных тестов. Входит в `mise run check` после фронтенда.
-- Бэкенд-тестам и компонентным тестам внешняя инфраструктура не нужна, но E2E поднимает настоящий Spring Boot и Chromium. Поэтому `mise run check` — достаточный шаг проверки: он прогоняет контракт, бэкенд, фронтенд и E2E, а отдельная инфраструктура нужна только для установки Chromium (`mise run e2e-install`).
+- Бэкенд-тестам и компонентным тестам внешняя инфраструктура не нужна, но E2E поднимает настоящий Spring Boot и Chromium. Поэтому `mise run check` — достаточный шаг проверки: он прогоняет workflow, контракт, бэкенд, фронтенд и E2E, а отдельная инфраструктура нужна только для установки Chromium (`mise run e2e-install`).
 - Docker: `mise run docker-check` собирает образ и проверяет контейнер на двух портах, включая graceful shutdown. Это отдельный CI-job `docker`, потому что ему нужен Docker daemon; в `mise run check` он не входит. `mise run verify-public` проверяет уже развёрнутый экземпляр по `PUBLIC_URL` и требует сеть, поэтому остаётся ручным шагом.
 
 ## Agent skills
