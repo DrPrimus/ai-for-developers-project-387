@@ -1,0 +1,13 @@
+config-secrets:
+  - OPENCODE_API_KEY
+  - HEXLET_ID
+
+ignores:
+  - rule: dangerous-triggers
+    file: .github/workflows/opencode.yml
+    reason: >-
+      issue_comment and pull_request_review_comment are the required triggers;
+      only OWNER, MEMBER and COLLABORATOR comments run, with read-only tools,
+      no GitHub token inside OpenCode, a per-issue or per-PR concurrency group
+      and a 20 minute timeout.
+    expires: "2027-05-31"

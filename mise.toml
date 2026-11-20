@@ -4,11 +4,18 @@ hk = { version = "2.11.1", workflow = "release.yml" }
 java = "25"
 maven = "latest"
 node = "24"
+jactionlint = "2.6.0"
+opencode = "2.3.2"
+shellcheck = "0.11.0"
 
 [tasks.check]
-description = "Полная проверка проекта: контракт API, бэкенд, фронтенд и E2E"
-depends = ["api-install", "fe-install"]
+description = "Полная проверка проекта: workflow, контракт API, бэкенд, фронтенд и E2E"
+depends = ["workflows-check", "api-install", "fe-install"]
 run = "node scripts/check.mjs all"
+
+[tasks.workflows-check]
+description = "Проверить GitHub Actions workflow через jactionlint"
+run = "jactionlint"
 
 [tasks.api-install]
 description = "Установить зависимости контракта API (TypeSpec)"
