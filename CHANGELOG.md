@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.3.0](https://github.com/DrPrimus/ai-for-developers-project-387/compare/v0.2.1...v0.3.0) (2026-11-20)
+
+
+### Features
+
+* **api,be,fe:** add meeting booking service ([795bf36](https://github.com/DrPrimus/ai-for-developers-project-387/commit/795bf36b90b5ba8343e487c7168fe38bd5a8911d))
+
+
+### Continuous Integration
+
+* add OpenCode issue comment workflow ([#4](https://github.com/DrPrimus/ai-for-developers-project-387/issues/4)) ([565e5af](https://github.com/DrPrimus/ai-for-developers-project-387/commit/565e5af341739cfbda84cf04f75b30e248c4210a)), closes [#3](https://github.com/DrPrimus/ai-for-developers-project-387/issues/3)
+
+
+### Documentation
+
+* adapt repository docs for project 387 ([9a162f7](https://github.com/DrPrimus/ai-for-developers-project-387/commit/9a162f77d3d2949fb976318d887dac9bbfe26775)), closes [#1](https://github.com/DrPrimus/ai-for-developers-project-387/issues/1)
+
+
+### Miscellaneous Chores
+
+* rename project identifiers to 387 ([7a4ec84](https://github.com/DrPrimus/ai-for-developers-project-387/commit/7a4ec84a7776cc4cff3448a487da7b8c76eb4295)), closes [#1](https://github.com/DrPrimus/ai-for-developers-project-387/issues/1)
+
 ## [0.2.1](https://github.com/DrPrimus/ai-for-developers-project-386/compare/v0.2.0...v0.2.1) (2026-11-17)
 
 
