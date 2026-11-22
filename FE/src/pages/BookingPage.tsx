@@ -21,6 +21,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   formatDayWithYear,
   formatInstantDay,
@@ -52,6 +54,7 @@ export function BookingPage() {
   const [types, setTypes] = useState<TypesState>({ state: 'loading', items: [] })
   const [typesReload, setTypesReload] = useState(0)
   const [selected, setSelected] = useState<MeetingType | null>(null)
+  const [topic, setTopic] = useState('')
   const [slots, setSlots] = useState<SlotsState>({
     state: 'idle',
     data: null,
@@ -133,15 +136,22 @@ export function BookingPage() {
     setSlotsReload((token) => token + 1)
   }
 
+  const trimmedTopic = topic.trim()
+  const topicReady = trimmedTopic.length > 0
+
   /** Нажатие на слот сразу создаёт встречу; отдельного подтверждения нет. */
   function bookSlot(slot: Slot) {
-    if (!selected || booking.state === 'submitting') return
+    if (!selected || booking.state === 'submitting' || !topicReady) return
 
     setBooking({
       state: 'submitting',
       alternative: booking.state === 'conflict' ? booking.conflict : null,
     })
-    createMeeting({ meetingTypeId: selected.id, startsAt: slot.startsAt })
+    createMeeting({
+      meetingTypeId: selected.id,
+      topic: trimmedTopic,
+      startsAt: slot.startsAt,
+    })
       .then((meeting) => {
         setBooking({ state: 'success', meeting })
         refreshSlots()
@@ -219,6 +229,22 @@ export function BookingPage() {
                 ← Выбрать другой тип
               </Button>
 
+              <div className="grid max-w-md gap-2">
+                <Label htmlFor="meeting-topic">Тема разговора</Label>
+                <Input
+                  id="meeting-topic"
+                  value={topic}
+                  onChange={(event) => setTopic(event.target.value)}
+                  aria-describedby="meeting-topic-hint"
+                />
+                <p
+                  id="meeting-topic-hint"
+                  className="text-sm text-muted-foreground"
+                >
+                  Опишите вопрос встречи. Тему увидит только владелец календаря.
+                </p>
+              </div>
+
               {booking.state === 'success' && timeZone && (
                 <div
                   ref={notificationRef}
@@ -264,7 +290,7 @@ export function BookingPage() {
                           key={slot.startsAt}
                           type="button"
                           variant="outline"
-                          disabled={submitting}
+                          disabled={submitting || !topicReady}
                           aria-label={formatSlotLabel(
                             conflict.date,
                             slot.startsAt,
@@ -305,11 +331,17 @@ export function BookingPage() {
                 <p className="text-sm text-muted-foreground">Обновляем слоты…</p>
               )}
 
+              {calendarVisible && !topicReady && (
+                <p className="text-sm text-muted-foreground">
+                  Заполните тему разговора, чтобы выбрать слот.
+                </p>
+              )}
+
               {calendarVisible && slots.data && (
                 <SlotCalendar
                   data={slots.data}
                   onSelectSlot={bookSlot}
-                  disabled={submitting}
+                  disabled={submitting || !topicReady}
                 />
               )}
             </>

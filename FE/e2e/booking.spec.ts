@@ -9,6 +9,8 @@ const MEETING_TYPE = {
   durationMinutes: 30,
 }
 
+const TOPIC = 'Обсудить архитектуру проекта'
+
 test('гость бронирует слот созданного типа, владелец видит встречу', async ({
   page,
 }) => {
@@ -37,7 +39,7 @@ test('гость бронирует слот созданного типа, вл
     ).toContainText(`${MEETING_TYPE.durationMinutes} мин`)
   })
 
-  await test.step('гость выбирает тип и первый свободный слот', async () => {
+  await test.step('гость выбирает тип, вводит тему и бронирует первый слот', async () => {
     await page.goto('/booking')
 
     const typeButton = page
@@ -51,6 +53,10 @@ test('гость бронирует слот созданного типа, вл
     const calendar = page.getByRole('list', { name: 'Календарь на 14 дней' })
     const firstSlot = calendar.getByRole('button').first()
     await expect(firstSlot).toBeVisible()
+    await expect(firstSlot).toBeDisabled()
+
+    await page.getByLabel('Тема разговора', { exact: true }).fill(TOPIC)
+    await expect(firstSlot).toBeEnabled()
 
     // Доступное имя кнопки: «вторник, 17 ноября 2026, 09:30–10:00».
     const slotLabel = await firstSlot.getAttribute('aria-label')
@@ -93,5 +99,6 @@ test('гость бронирует слот созданного типа, вл
     await expect(meetingRow).toContainText(
       `${MEETING_TYPE.durationMinutes} мин`,
     )
+    await expect(meetingRow).toContainText(TOPIC)
   })
 })

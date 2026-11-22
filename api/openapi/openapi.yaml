@@ -185,6 +185,7 @@ components:
       type: object
       required:
         - id
+        - topic
         - meetingType
         - startsAt
         - endsAt
@@ -192,6 +193,9 @@ components:
         id:
           type: string
           format: uuid
+        topic:
+          type: string
+          description: 'Тема разговора после trim: непустая строка без верхней границы длины. Снимок на момент брони.'
         meetingType:
           $ref: '#/components/schemas/MeetingTypeSummary'
         startsAt:
@@ -205,11 +209,15 @@ components:
       type: object
       required:
         - meetingTypeId
+        - topic
         - startsAt
       properties:
         meetingTypeId:
           type: string
           format: uuid
+        topic:
+          type: string
+          description: 'Тема разговора после trim: непустая строка без верхней границы длины.'
         startsAt:
           type: string
           format: date-time

@@ -54,7 +54,8 @@ public class MeetingController {
                 () -> new InvalidRequestFieldException("meetingTypeId", INVALID_MEETING_TYPE_ID));
     MeetingType meetingType = meetingTypeResolver.require(meetingTypeId);
 
-    BookingService.Result result = bookingService.book(meetingType, request.startsAt().toInstant());
+    BookingService.Result result =
+        bookingService.book(meetingType, request.topic().strip(), request.startsAt().toInstant());
 
     return switch (result) {
       case BookingService.Result.Booked booked ->

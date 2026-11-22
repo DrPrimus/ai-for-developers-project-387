@@ -38,6 +38,7 @@ class MeetingApiTest {
 
   private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm");
   private static final String WEDNESDAY = "2026-11-18";
+  private static final String TOPIC = "Обсудить задачу";
 
   @Autowired private MockMvc mockMvc;
   @Autowired private InMemoryStore store;
@@ -56,6 +57,7 @@ class MeetingApiTest {
     assertThat(result.getResponse().getStatus()).isEqualTo(201);
     String body = result.getResponse().getContentAsString();
     assertThat((String) JsonPath.read(body, "$.id")).isNotBlank();
+    assertThat((String) JsonPath.read(body, "$.topic")).isEqualTo(TOPIC);
     assertThat((String) JsonPath.read(body, "$.meetingType.id")).isEqualTo(typeId);
     assertThat((String) JsonPath.read(body, "$.meetingType.name")).isEqualTo("Встреча");
     assertThat((Integer) JsonPath.read(body, "$.meetingType.durationMinutes")).isEqualTo(30);
@@ -105,7 +107,9 @@ class MeetingApiTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
             .andExpect(
-                jsonPath("$.fieldErrors[*].field", containsInAnyOrder("meetingTypeId", "startsAt")))
+                jsonPath(
+                    "$.fieldErrors[*].field",
+                    containsInAnyOrder("meetingTypeId", "topic", "startsAt")))
             .andReturn();
 
     assertThat(result.getResponse().getStatus()).isEqualTo(400);
@@ -119,7 +123,7 @@ class MeetingApiTest {
         .perform(
             post("/api/meetings")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"meetingTypeId\": \"" + typeId + "\"}"))
+                .content("{\"meetingTypeId\": \"" + typeId + "\", \"topic\": \"" + TOPIC + "\"}"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
         .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("startsAt")));
@@ -135,9 +139,9 @@ class MeetingApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
-                    {"meetingTypeId": "%s", "startsAt": "завтра в девять"}
+                    {"meetingTypeId": "%s", "topic": "%s", "startsAt": "завтра в девять"}
                     """
-                        .formatted(typeId)))
+                        .formatted(typeId, TOPIC)))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
         .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("startsAt")));
@@ -248,6 +252,70 @@ class MeetingApiTest {
     assertThat(store.meetings()).hasSize(1);
   }
 
+  @Test
+  void missingTopicIsReportedAsValidationError() throws Exception {
+    String typeId = createMeetingType(30);
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/meetings")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {"meetingTypeId": "%s", "startsAt": "%s"}
+                        """
+                            .formatted(typeId, WEDNESDAY + "T09:00:00+03:00")))
+            .andReturn();
+
+    assertThat(result.getResponse().getStatus()).isEqualTo(400);
+    String body = result.getResponse().getContentAsString();
+    assertThat((String) JsonPath.read(body, "$.code")).isEqualTo("VALIDATION_FAILED");
+    assertThat(JsonPath.<List<String>>read(body, "$.fieldErrors[*].field"))
+        .containsExactly("topic");
+    assertThat(store.meetings()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"", "   "})
+  void blankTopicIsReportedAsValidationError(String topic) throws Exception {
+    String typeId = createMeetingType(30);
+
+    MvcResult result = book(typeId, WEDNESDAY + "T09:00:00+03:00", topic);
+
+    assertThat(result.getResponse().getStatus()).isEqualTo(400);
+    String body = result.getResponse().getContentAsString();
+    assertThat((String) JsonPath.read(body, "$.code")).isEqualTo("VALIDATION_FAILED");
+    assertThat(JsonPath.<List<String>>read(body, "$.fieldErrors[*].field"))
+        .containsExactly("topic");
+    assertThat(store.meetings()).isEmpty();
+  }
+
+  @Test
+  void topicIsTrimmedInTheResponseAndStoredTrimmed() throws Exception {
+    String typeId = createMeetingType(30);
+
+    MvcResult result = book(typeId, WEDNESDAY + "T09:00:00+03:00", "  Обсудить задачу  ");
+
+    assertThat(result.getResponse().getStatus()).isEqualTo(201);
+    assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), "$.topic"))
+        .isEqualTo("Обсудить задачу");
+    assertThat(store.meetings().getFirst().topic()).isEqualTo("Обсудить задачу");
+  }
+
+  @Test
+  void veryLongTopicIsAcceptedWithoutChanges() throws Exception {
+    String typeId = createMeetingType(30);
+    String longTopic = "Д".repeat(5000);
+
+    MvcResult result = book(typeId, WEDNESDAY + "T09:00:00+03:00", longTopic);
+
+    assertThat(result.getResponse().getStatus()).isEqualTo(201);
+    assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), "$.topic"))
+        .isEqualTo(longTopic);
+    assertThat(store.meetings().getFirst().topic()).isEqualTo(longTopic);
+  }
+
   private List<String> conflictSlotStarts(MvcResult result) throws Exception {
     List<Map<String, Object>> slots =
         JsonPath.read(result.getResponse().getContentAsString(), "$.slots");
@@ -273,15 +341,19 @@ class MeetingApiTest {
   }
 
   private MvcResult book(String meetingTypeId, String startsAt) throws Exception {
+    return book(meetingTypeId, startsAt, TOPIC);
+  }
+
+  private MvcResult book(String meetingTypeId, String startsAt, String topic) throws Exception {
     return mockMvc
         .perform(
             post("/api/meetings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
-                    {"meetingTypeId": "%s", "startsAt": "%s"}
+                    {"meetingTypeId": "%s", "topic": "%s", "startsAt": "%s"}
                     """
-                        .formatted(meetingTypeId, startsAt)))
+                        .formatted(meetingTypeId, topic, startsAt)))
         .andReturn();
   }
 
