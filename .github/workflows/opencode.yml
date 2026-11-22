@@ -47,10 +47,12 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           # OpenCode 1 (installed by this action) ignores the action's "agent"
           # input and expects "permission", not the OpenCode 2 "permissions"
-          # array. Read-only tools stay available, edits are allowed, and
-          # bash/grep/webfetch/task plus .git/** are denied so the App token
-          # that the CLI keeps in .git/config during the run cannot be read.
+          # array. Read-only tools and .agents/skills stay available, edits are
+          # allowed, and bash/grep/webfetch/task plus .git/** are denied so the
+          # App token that the CLI keeps in .git/config during the run cannot be
+          # read. Skills can read files but cannot run gh, so issue creation
+          # from to-spec stays a human step.
           OPENCODE_CONFIG_CONTENT: |
-            {"default_agent":"build","permission":{"*":"deny","read":{"*":"allow",".git/**":"deny"},"glob":"allow","list":"allow","edit":{"*":"allow",".git/**":"deny"},"grep":"deny","bash":"deny","task":"deny","webfetch":"deny","websearch":"deny","external_directory":"deny"}}
+            {"default_agent":"build","permission":{"*":"deny","read":{"*":"allow",".git/**":"deny"},"glob":"allow","list":"allow","skill":"allow","edit":{"*":"allow",".git/**":"deny"},"grep":"deny","bash":"deny","task":"deny","webfetch":"deny","websearch":"deny","external_directory":"deny"}}
         with:
           model: opencode/deepseek-v4.1-flash
