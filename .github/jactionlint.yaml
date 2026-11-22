@@ -6,13 +6,12 @@ ignores:
   - rule: dangerous-triggers
     file: .github/workflows/opencode.yml
     reason: >-
-      issue_comment and pull_request_review_comment are the required triggers;
-      only OWNER, MEMBER and COLLABORATOR comments run. The job GITHUB_TOKEN is
-      read-only and write access comes only from the short-lived OpenCode
-      GitHub App token obtained through OIDC. The agent may edit files, but
-      bash, grep, webfetch, task and external directories are denied and
-      .git/** is unreadable, so the App token kept in .git/config during the
-      run cannot be read. Checkout starts from the default branch with
-      persist-credentials: false, and runs are serialized per issue or PR with
-      a 20 minute timeout.
+      issue_comment and pull_request_review_comment are the required triggers.
+      Only OWNER, MEMBER and COLLABORATOR comments start the job, and the
+      OpenCode GitHub Action additionally checks admin/write permission itself.
+      The job GITHUB_TOKEN has no write scopes; write access comes only from the
+      short-lived OpenCode GitHub App token obtained through OIDC. The agent
+      runs with the action's default build tools. Checkout uses
+      persist-credentials: false, and runs are serialized per issue or PR with a
+      15 minute timeout.
     expires: "2027-05-31"
