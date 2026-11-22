@@ -8,6 +8,7 @@ import ru.hexlet._6.domain.MeetingType;
 /** Забронированная встреча в ответах API. */
 public record MeetingResponse(
     String id,
+    String topic,
     MeetingTypeSummaryResponse meetingType,
     OffsetDateTime startsAt,
     OffsetDateTime endsAt) {
@@ -21,6 +22,7 @@ public record MeetingResponse(
   public static MeetingResponse from(Meeting meeting, MeetingTypeSummaryResponse meetingType) {
     return new MeetingResponse(
         meeting.id().toString(),
+        meeting.topic(),
         meetingType,
         OffsetDateTime.ofInstant(meeting.startsAt(), CalendarRules.TIME_ZONE),
         OffsetDateTime.ofInstant(meeting.endsAt(), CalendarRules.TIME_ZONE));

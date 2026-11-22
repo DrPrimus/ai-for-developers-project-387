@@ -21,6 +21,8 @@ const MEETING_TYPE = {
   durationMinutes: 30,
 }
 
+const TOPIC = 'Проверка темы разговора'
+
 function requirePublicUrl() {
   const raw = process.env.PUBLIC_URL
   if (!raw) {
@@ -177,6 +179,17 @@ async function main() {
         'для проверки 409 нужен день, где после брони остаётся альтернатива',
     )
     await firstSlot.waitFor({ state: 'visible', timeout: STEP_TIMEOUT_MS })
+    assert.ok(
+      await firstSlot.isDisabled(),
+      'До ввода темы кнопка слота должна быть заблокирована',
+    )
+
+    await page.getByLabel('Тема разговора', { exact: true }).fill(TOPIC)
+    await firstSlot.waitFor({ state: 'visible', timeout: STEP_TIMEOUT_MS })
+    assert.ok(
+      await firstSlot.isEnabled(),
+      'После ввода темы кнопка слота должна быть доступна',
+    )
 
     const slotLabel = await firstSlot.getAttribute('aria-label')
     assert.ok(slotLabel, 'У кнопки первого слота нет доступного имени')
@@ -257,6 +270,7 @@ async function main() {
       `${MEETING_TYPE.durationMinutes} мин`,
       'длительность у владельца',
     )
+    await expectText(meetingRow, TOPIC, 'тема разговора у владельца')
     console.log(`  владелец видит встречу в предстоящих: ${dayLabel}, ${timeRange}`)
 
     // 5. Повторное бронирование того же слота напрямую через API — 409
@@ -266,7 +280,7 @@ async function main() {
       timeout: STEP_TIMEOUT_MS,
     })
     const conflictResponse = await apiContext.post('/api/meetings', {
-      data: { meetingTypeId, startsAt },
+      data: { meetingTypeId, topic: TOPIC, startsAt },
     })
     assert.equal(
       conflictResponse.status(),

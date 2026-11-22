@@ -46,7 +46,7 @@ class BookingConcurrencyTest {
 
   record CreateMeetingTypeRequestBody(String name, String description, int durationMinutes) {}
 
-  record BookSlotRequestBody(String meetingTypeId, String startsAt) {}
+  record BookSlotRequestBody(String meetingTypeId, String topic, String startsAt) {}
 
   @Autowired private TestRestTemplate restTemplate;
   @Autowired private InMemoryStore store;
@@ -109,7 +109,9 @@ class BookingConcurrencyTest {
   private HttpStatusCode book(String meetingTypeId) {
     return restTemplate
         .postForEntity(
-            "/api/meetings", new BookSlotRequestBody(meetingTypeId, STARTS_AT), String.class)
+            "/api/meetings",
+            new BookSlotRequestBody(meetingTypeId, "Обсудить задачу", STARTS_AT),
+            String.class)
         .getStatusCode();
   }
 

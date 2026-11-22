@@ -28,9 +28,19 @@ const upcomingMock = vi.mocked(listUpcomingMeetings)
 
 const TIME_ZONE = 'Europe/Moscow'
 
-function meeting(id: string, startsAt: string, endsAt: string, name = 'Консультация', durationMinutes = 30): Meeting {
+const TOPIC = 'Обсудить задачу'
+
+function meeting(
+  id: string,
+  startsAt: string,
+  endsAt: string,
+  name = 'Консультация',
+  durationMinutes = 30,
+  topic = TOPIC,
+): Meeting {
   return {
     id,
+    topic,
     meetingType: { id: CONSULTATION.id, name, durationMinutes },
     startsAt,
     endsAt,
@@ -53,6 +63,7 @@ const THURSDAY = meeting(
   '2026-11-19T14:45:00+03:00',
   'Ревью кода',
   45,
+  'Ревью архитектуры',
 )
 
 const WINDOW = { from: '2026-11-17', to: '2026-11-30' }
@@ -118,6 +129,7 @@ describe('админка: предстоящие встречи', () => {
     expect(wednesdayRows[0]).toHaveTextContent('09:00–09:30')
     expect(wednesdayRows[0]).toHaveTextContent('Консультация')
     expect(wednesdayRows[0]).toHaveTextContent('30 мин')
+    expect(wednesdayRows[0]).toHaveTextContent(TOPIC)
     expect(wednesdayRows[1]).toHaveTextContent('10:00–10:30')
 
     const thursdayRows = within(dayRegion(THURSDAY.startsAt)).getAllByRole('listitem')
@@ -125,6 +137,28 @@ describe('админка: предстоящие встречи', () => {
     expect(thursdayRows[0]).toHaveTextContent('Ревью кода')
     expect(thursdayRows[0]).toHaveTextContent('14:00–14:45')
     expect(thursdayRows[0]).toHaveTextContent('45 мин')
+    expect(thursdayRows[0]).toHaveTextContent('Ревью архитектуры')
+    expect(within(thursdayRows[0]).getByText('Ревью архитектуры').tagName).toBe('P')
+  })
+
+  it('переносит длинную тему отдельной строкой', async () => {
+    const longTopic = 'Очень длинная тема разговора '.repeat(12).trim()
+    const withLongTopic = meeting(
+      'dddddddd-dddd-dddd-dddd-dddddddddddd',
+      '2026-11-18T09:00:00+03:00',
+      '2026-11-18T09:30:00+03:00',
+      'Консультация',
+      30,
+      longTopic,
+    )
+    upcomingMock.mockResolvedValue(upcoming([withLongTopic]))
+
+    renderAdmin()
+
+    const row = await screen.findByRole('listitem')
+    const topicNode = within(row).getByText(longTopic)
+    expect(topicNode.tagName).toBe('P')
+    expect(topicNode).toHaveClass('break-words')
   })
 
   it('показывает пустое состояние, отличное от ошибки', async () => {

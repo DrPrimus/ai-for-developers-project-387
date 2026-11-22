@@ -194,6 +194,7 @@ class SlotApiTest {
     Instant start = OffsetDateTime.parse(startsAt).toInstant();
     store.createMeeting(
         UUID.fromString(meetingTypeId),
+        "Тема разговора",
         durationMinutes,
         start,
         start.plusSeconds(60L * durationMinutes));

@@ -48,12 +48,12 @@ public class BookingService {
     this.slotService = slotService;
   }
 
-  /** Пытается забронировать начало {@code startsAt} для типа встречи. */
-  public Result book(MeetingType meetingType, Instant startsAt) {
-    return store.withWriteLock(() -> attempt(meetingType, startsAt));
+  /** Пытается забронировать начало {@code startsAt} для типа встречи с темой разговора. */
+  public Result book(MeetingType meetingType, String topic, Instant startsAt) {
+    return store.withWriteLock(() -> attempt(meetingType, topic, startsAt));
   }
 
-  private Result attempt(MeetingType meetingType, Instant startsAt) {
+  private Result attempt(MeetingType meetingType, String topic, Instant startsAt) {
     Duration duration = Duration.ofMinutes(meetingType.durationMinutes());
     LocalDate date = LocalDate.ofInstant(startsAt, CalendarRules.TIME_ZONE);
 
@@ -74,7 +74,8 @@ public class BookingService {
     }
 
     Meeting created =
-        store.createMeeting(meetingType.id(), meetingType.durationMinutes(), startsAt, endsAt);
+        store.createMeeting(
+            meetingType.id(), topic, meetingType.durationMinutes(), startsAt, endsAt);
     return new Result.Booked(created);
   }
 

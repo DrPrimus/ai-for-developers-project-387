@@ -103,6 +103,8 @@ export interface components {
         Meeting: {
             /** Format: uuid */
             id: string;
+            /** @description Тема разговора после trim: непустая строка без верхней границы длины. Снимок на момент брони. */
+            topic: string;
             meetingType: components["schemas"]["MeetingTypeSummary"];
             /** Format: date-time */
             startsAt: string;
@@ -113,6 +115,8 @@ export interface components {
         MeetingRequest: {
             /** Format: uuid */
             meetingTypeId: string;
+            /** @description Тема разговора после trim: непустая строка без верхней границы длины. */
+            topic: string;
             /** Format: date-time */
             startsAt: string;
         };

@@ -36,6 +36,7 @@ import ru.hexlet._6.support.TestClockConfiguration;
 class UpcomingMeetingsApiTest {
 
   private static final String TYPE_NAME = "Консультация";
+  private static final String TOPIC = "Обсудить архитектуру";
 
   @Autowired private MockMvc mockMvc;
   @Autowired private InMemoryStore store;
@@ -94,6 +95,7 @@ class UpcomingMeetingsApiTest {
     Map<String, Object> meeting = upcomingItems(upcoming()).get(0);
 
     assertThat((String) meeting.get("id")).isNotBlank();
+    assertThat((String) meeting.get("topic")).isEqualTo(TOPIC);
     @SuppressWarnings("unchecked")
     Map<String, Object> summary = (Map<String, Object>) meeting.get("meetingType");
     assertThat((String) summary.get("id")).isEqualTo(meetingTypeId.toString());
@@ -113,18 +115,39 @@ class UpcomingMeetingsApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
-                    {"meetingTypeId": "%s", "startsAt": "2026-11-18T09:00:00+03:00"}
+                    {"meetingTypeId": "%s", "topic": "%s", "startsAt": "2026-11-18T09:00:00+03:00"}
+                    """
+                        .formatted(meetingTypeId, TOPIC)))
+        .andExpect(status().isCreated());
+
+    assertThat(startTimes(upcoming())).containsExactly("2026-11-18T09:00:00+03:00");
+    assertThat((String) upcomingItems(upcoming()).get(0).get("topic")).isEqualTo(TOPIC);
+  }
+
+  @Test
+  void bookedTopicIsTrimmedInTheUpcomingList() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/meetings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"meetingTypeId": "%s", "topic": "  Обсудить задачу  ", "startsAt": "2026-11-18T09:00:00+03:00"}
                     """
                         .formatted(meetingTypeId)))
         .andExpect(status().isCreated());
 
-    assertThat(startTimes(upcoming())).containsExactly("2026-11-18T09:00:00+03:00");
+    assertThat((String) upcomingItems(upcoming()).get(0).get("topic")).isEqualTo("Обсудить задачу");
   }
 
   private void insertMeeting(String startsAt, int durationMinutes) {
+    insertMeeting(startsAt, durationMinutes, TOPIC);
+  }
+
+  private void insertMeeting(String startsAt, int durationMinutes, String topic) {
     Instant start = OffsetDateTime.parse(startsAt).toInstant();
     store.createMeeting(
-        meetingTypeId, durationMinutes, start, start.plusSeconds(durationMinutes * 60L));
+        meetingTypeId, topic, durationMinutes, start, start.plusSeconds(durationMinutes * 60L));
   }
 
   private String upcoming() throws Exception {

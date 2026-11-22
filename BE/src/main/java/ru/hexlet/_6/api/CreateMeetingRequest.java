@@ -7,4 +7,5 @@ import java.time.OffsetDateTime;
 /** Тело запроса на бронирование слота. */
 public record CreateMeetingRequest(
     @NotBlank(message = "Укажите тип встречи") String meetingTypeId,
+    @NotBlank(message = "Укажите тему разговора") String topic,
     @NotNull(message = "Укажите начало встречи") OffsetDateTime startsAt) {}

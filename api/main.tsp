@@ -85,6 +85,8 @@ model MeetingTypeSummary {
 model Meeting {
   @format("uuid")
   id: string;
+  /** Тема разговора после trim: непустая строка без верхней границы длины. Снимок на момент брони. */
+  topic: string;
   meetingType: MeetingTypeSummary;
   startsAt: offsetDateTime;
   endsAt: offsetDateTime;
@@ -94,6 +96,8 @@ model Meeting {
 model MeetingRequest {
   @format("uuid")
   meetingTypeId: string;
+  /** Тема разговора после trim: непустая строка без верхней границы длины. */
+  topic: string;
   startsAt: offsetDateTime;
 }
 

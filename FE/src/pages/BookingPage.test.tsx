@@ -105,8 +105,11 @@ beforeEach(() => {
   slotsMock.mockResolvedValue(SLOTS)
 })
 
+const TOPIC = 'Обсудить архитектуру'
+
 const BOOKED = {
   id: '33333333-3333-3333-3333-333333333333',
+  topic: TOPIC,
   meetingType: {
     id: CONSULTATION.id,
     name: CONSULTATION.name,
@@ -273,11 +276,114 @@ describe('/booking: календарь слотов', () => {
   })
 })
 
+describe('/booking: тема разговора', () => {
+  it('показывает обязательное поле темы после выбора типа и до календаря', async () => {
+    const user = userEvent.setup()
+    listMock.mockResolvedValue([CONSULTATION])
+
+    renderBooking()
+    await selectConsultation(user)
+
+    const topicInput = await screen.findByLabelText('Тема разговора')
+    const calendar = await screen.findByRole('list', { name: /календарь на 14 дней/i })
+    expect(
+      topicInput.compareDocumentPosition(calendar) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('блокирует слоты, пока тема пуста или состоит из пробелов, но оставляет календарь видимым', async () => {
+    const user = userEvent.setup()
+    listMock.mockResolvedValue([CONSULTATION])
+
+    renderBooking()
+    await selectConsultation(user)
+
+    const slotButton = await screen.findByRole('button', { name: FIRST_SLOT })
+    expect(slotButton).toBeDisabled()
+    expect(
+      screen.getByRole('list', { name: /календарь на 14 дней/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/заполните тему разговора, чтобы выбрать слот/i),
+    ).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Тема разговора'), '   ')
+    expect(slotButton).toBeDisabled()
+  })
+
+  it('разблокирует слоты после непустой темы', async () => {
+    const user = userEvent.setup()
+    listMock.mockResolvedValue([CONSULTATION])
+
+    renderBooking()
+    await selectConsultation(user)
+
+    const slotButton = await screen.findByRole('button', { name: FIRST_SLOT })
+    expect(slotButton).toBeDisabled()
+
+    await user.type(screen.getByLabelText('Тема разговора'), TOPIC)
+
+    expect(slotButton).toBeEnabled()
+    expect(
+      screen.queryByText(/заполните тему разговора, чтобы выбрать слот/i),
+    ).not.toBeInTheDocument()
+  })
+
+  it('отправляет тему, обрезанную по краям', async () => {
+    const user = userEvent.setup()
+    listMock.mockResolvedValue([CONSULTATION])
+    bookMock.mockResolvedValue(BOOKED)
+
+    renderBooking()
+    await selectConsultation(user)
+    await user.type(screen.getByLabelText('Тема разговора'), `  ${TOPIC}  `)
+
+    const slotButton = await screen.findByRole('button', { name: FIRST_SLOT })
+    await user.click(slotButton)
+
+    await waitFor(() =>
+      expect(bookMock).toHaveBeenCalledWith({
+        meetingTypeId: CONSULTATION.id,
+        topic: TOPIC,
+        startsAt: '2026-11-17T09:30:00+03:00',
+      }),
+    )
+  })
+
+  it('не вызывает API, пока тема пуста', async () => {
+    const user = userEvent.setup()
+    listMock.mockResolvedValue([CONSULTATION])
+
+    renderBooking()
+    await selectConsultation(user)
+
+    const slotButton = await screen.findByRole('button', { name: FIRST_SLOT })
+    await user.click(slotButton)
+
+    expect(bookMock).not.toHaveBeenCalled()
+  })
+
+  it('сохраняет введённую тему при смене типа встречи', async () => {
+    const user = userEvent.setup()
+    listMock.mockResolvedValue([CONSULTATION, REVIEW])
+
+    renderBooking()
+    await selectConsultation(user)
+    await user.type(screen.getByLabelText('Тема разговора'), TOPIC)
+
+    await user.click(screen.getByRole('button', { name: /выбрать другой тип/i }))
+    await user.click(await screen.findByRole('button', { name: /Ревью кода/ }))
+
+    expect(screen.getByLabelText('Тема разговора')).toHaveValue(TOPIC)
+  })
+})
+
 describe('/booking: бронирование слота', () => {
   async function openCalendar(user: ReturnType<typeof userEvent.setup>) {
     listMock.mockResolvedValue([CONSULTATION, REVIEW])
     renderBooking()
     await selectConsultation(user)
+    await user.type(screen.getByLabelText('Тема разговора'), TOPIC)
     return screen.findByRole('button', { name: FIRST_SLOT })
   }
 
@@ -295,8 +401,10 @@ describe('/booking: бронирование слота', () => {
     expect(status).toHaveTextContent('вторник, 17 ноября 2026')
     expect(status).toHaveTextContent('09:30–10:00')
     expect(status).toHaveTextContent('30 мин')
+    expect(status).not.toHaveTextContent(TOPIC)
     expect(bookMock).toHaveBeenCalledExactlyOnceWith({
       meetingTypeId: CONSULTATION.id,
+      topic: TOPIC,
       startsAt: '2026-11-17T09:30:00+03:00',
     })
 
@@ -387,6 +495,7 @@ describe('/booking: бронирование слота', () => {
 
     expect(bookMock).toHaveBeenLastCalledWith({
       meetingTypeId: CONSULTATION.id,
+      topic: TOPIC,
       startsAt: alternative.startsAt,
     })
     expect(await screen.findByRole('status')).toHaveTextContent('10:00–10:30')

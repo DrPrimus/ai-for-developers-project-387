@@ -136,19 +136,22 @@ export function UpcomingMeetingsCard() {
                   {group.meetings.map((meeting) => (
                     <li
                       key={meeting.id}
-                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg border bg-background p-4"
+                      className="flex flex-col gap-1 rounded-lg border bg-background p-4"
                     >
-                      <span className="font-medium">
-                        {meeting.meetingType.name}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {formatTimeRange(
-                          meeting.startsAt,
-                          meeting.endsAt,
-                          data.timeZone,
-                        )}{' '}
-                        · {meeting.meetingType.durationMinutes} мин
-                      </span>
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                        <span className="font-medium">
+                          {meeting.meetingType.name}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {formatTimeRange(
+                            meeting.startsAt,
+                            meeting.endsAt,
+                            data.timeZone,
+                          )}{' '}
+                          · {meeting.meetingType.durationMinutes} мин
+                        </span>
+                      </div>
+                      <p className="text-sm break-words">{meeting.topic}</p>
                     </li>
                   ))}
                 </ul>

@@ -79,11 +79,11 @@ public class InMemoryStore {
    * {@link #withWriteLock} держит блокировку на всё время проверки и вставки.
    */
   public Meeting createMeeting(
-      UUID meetingTypeId, int durationMinutes, Instant startsAt, Instant endsAt) {
+      UUID meetingTypeId, String topic, int durationMinutes, Instant startsAt, Instant endsAt) {
     writeLock.lock();
     try {
       Meeting created =
-          new Meeting(UUID.randomUUID(), meetingTypeId, durationMinutes, startsAt, endsAt);
+          new Meeting(UUID.randomUUID(), topic, meetingTypeId, durationMinutes, startsAt, endsAt);
       List<Meeting> next = new ArrayList<>(meetings);
       next.add(created);
       meetings = List.copyOf(next);
