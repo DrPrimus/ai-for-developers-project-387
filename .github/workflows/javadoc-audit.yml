@@ -1,4 +1,4 @@
-name: Weekly Code Audit
+name: javadoc-audit
 on:
   schedule:
     - cron: "23 17 * * 2" # Every Tuesday at 17:23 UTC
