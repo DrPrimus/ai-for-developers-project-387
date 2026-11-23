@@ -54,6 +54,10 @@ public class InMemoryStore {
     return meetings;
   }
 
+  public int meetingCount() {
+    return meetings.size();
+  }
+
   /** Находит тип встречи по идентификатору. */
   public Optional<MeetingType> meetingType(UUID id) {
     return meetingTypes.stream().filter(type -> type.id().equals(id)).findFirst();
