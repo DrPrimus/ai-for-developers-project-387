@@ -22,6 +22,14 @@ jobs:
         uses: anomalyco/opencode/github@17b79f4e0c16dcff200b0417567ed22aeb2d7166 # github-v1.2.28
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENCODE_CONFIG_CONTENT: |
+            {
+              "$schema": "https://opencode.ai/config.json",
+              "permission": {
+                "external_directory": "deny",
+                "doom_loop": "deny"
+              }
+            }
         with:
           model: opencode/deepseek-v4.1-flash
           share: false
