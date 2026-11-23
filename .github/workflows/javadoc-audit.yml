@@ -1,0 +1,35 @@
+name: Weekly Code Audit
+on:
+  schedule:
+    - cron: "23 17 * * 2" # Every Tuesday at 17:23 UTC
+  workflow_dispatch:
+concurrency:
+  group: weekly-code-audit
+  cancel-in-progress: false
+jobs:
+  opencode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@17b79f4e0c16dcff200b0417567ed22aeb2d7166 # github-v1.2.28
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: opencode/deepseek-v4.1-flash
+          share: false
+          prompt: |
+            Review the BE backend code for missing Javadoc comments on public and protected types, constructors and methods; skip @Override.
+            Search existing issues before creating a task for a new finding.
+            Do not repeat an issue or an unchanged comment.
+            Include evidence, a proposed action and a link to this run.
+            Do not create branches or PRs. Record the result, including
+            no findings, in one reusable audit-log issue. Do not repeat
+            an unchanged summary. Also write the result to GITHUB_STEP_SUMMARY.
