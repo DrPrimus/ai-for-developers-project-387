@@ -1,5 +1,48 @@
 # Changelog
 
+## [0.3.0](https://github.com/DrPrimus/ai-for-developers-project-387/compare/v0.2.1...v0.3.0) (2026-11-23)
+
+
+### Features
+
+* **api,be,fe:** add meeting booking service ([795bf36](https://github.com/DrPrimus/ai-for-developers-project-387/commit/795bf36b90b5ba8343e487c7168fe38bd5a8911d))
+
+
+### Bug Fixes
+
+* **ci:** keep javadoc audit from hanging ([ef06f38](https://github.com/DrPrimus/ai-for-developers-project-387/commit/ef06f387329b2d7c17b4f0ea23feb91b7ec5f98c)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+* **ci:** keep opencode triage from hanging ([c1192fa](https://github.com/DrPrimus/ai-for-developers-project-387/commit/c1192fa36fb034aac0468488ef942702fdd17108)), closes [#23](https://github.com/DrPrimus/ai-for-developers-project-387/issues/23)
+* **ci:** skip triage for opencode-agent issues ([fbd854e](https://github.com/DrPrimus/ai-for-developers-project-387/commit/fbd854e33305c534c837bd841f6bdb2c8240cc4c)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+
+
+### Continuous Integration
+
+* add OpenCode issue comment workflow ([#4](https://github.com/DrPrimus/ai-for-developers-project-387/issues/4)) ([565e5af](https://github.com/DrPrimus/ai-for-developers-project-387/commit/565e5af341739cfbda84cf04f75b30e248c4210a)), closes [#3](https://github.com/DrPrimus/ai-for-developers-project-387/issues/3)
+* add opencode issue triage workflow ([dafa9e6](https://github.com/DrPrimus/ai-for-developers-project-387/commit/dafa9e685f1d32f946a1360e9b17dfba8370f5d4)), closes [#21](https://github.com/DrPrimus/ai-for-developers-project-387/issues/21)
+* add weekly javadoc audit workflow ([e820e74](https://github.com/DrPrimus/ai-for-developers-project-387/commit/e820e7497e359f5a02cf5ee4327370c2abe63cad)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+* allow OpenCode in pull request conversations ([#10](https://github.com/DrPrimus/ai-for-developers-project-387/issues/10)) ([6b292b3](https://github.com/DrPrimus/ai-for-developers-project-387/commit/6b292b31a2b637f2ef9585a87ece0c213699cb1e)), closes [#9](https://github.com/DrPrimus/ai-for-developers-project-387/issues/9)
+* expose project skills to OpenCode ([#12](https://github.com/DrPrimus/ai-for-developers-project-387/issues/12)) ([cdc34ee](https://github.com/DrPrimus/ai-for-developers-project-387/commit/cdc34ee132bfc096906c0a87d8cc64796f84bb4a)), closes [#11](https://github.com/DrPrimus/ai-for-developers-project-387/issues/11)
+* rename workflow to javadoc-audit ([07209dc](https://github.com/DrPrimus/ai-for-developers-project-387/commit/07209dca02429cb30ab62a5e05659166114567e3)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+* restore baseline OpenCode workflow ([#14](https://github.com/DrPrimus/ai-for-developers-project-387/issues/14)) ([6383854](https://github.com/DrPrimus/ai-for-developers-project-387/commit/6383854e5a374e0256a2fd8f71ba1ce512d482cb)), closes [#13](https://github.com/DrPrimus/ai-for-developers-project-387/issues/13)
+* switch OpenCode comments to GitHub Action v1 ([#7](https://github.com/DrPrimus/ai-for-developers-project-387/issues/7)) ([f858dcf](https://github.com/DrPrimus/ai-for-developers-project-387/commit/f858dcf88fed1bba33747ad9ced82af41d17899a)), closes [#6](https://github.com/DrPrimus/ai-for-developers-project-387/issues/6)
+
+
+### Tests
+
+* **be:** add undocumented method for javadoc audit ([fecb100](https://github.com/DrPrimus/ai-for-developers-project-387/commit/fecb10049cff8dc3779c94363146ba5f022d7167)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+
+
+### Documentation
+
+* adapt repository docs for project 387 ([9a162f7](https://github.com/DrPrimus/ai-for-developers-project-387/commit/9a162f77d3d2949fb976318d887dac9bbfe26775)), closes [#1](https://github.com/DrPrimus/ai-for-developers-project-387/issues/1)
+* describe javadoc audit in readme ([4844092](https://github.com/DrPrimus/ai-for-developers-project-387/commit/48440929136922702ab63fed9359a18a09dc4373)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+* keep javadoc audit readme section brief ([da2209d](https://github.com/DrPrimus/ai-for-developers-project-387/commit/da2209db3725343aeb6a0788b8e1b917cabba33c)), closes [#25](https://github.com/DrPrimus/ai-for-developers-project-387/issues/25)
+
+
+### Miscellaneous Chores
+
+* rename project identifiers to 387 ([7a4ec84](https://github.com/DrPrimus/ai-for-developers-project-387/commit/7a4ec84a7776cc4cff3448a487da7b8c76eb4295)), closes [#1](https://github.com/DrPrimus/ai-for-developers-project-387/issues/1)
+
 ## [0.2.1](https://github.com/DrPrimus/ai-for-developers-project-386/compare/v0.2.0...v0.2.1) (2026-11-17)
 
 
